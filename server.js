@@ -18,7 +18,7 @@
   app.use(logger('dev'));
 
   // use jade as view engine
-  app.set('views', './views');
+  app.set('views', './webpages');
   app.set('view engine', 'jade');
 
   // middleware to parse cookie
