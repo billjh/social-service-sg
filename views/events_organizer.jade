@@ -82,8 +82,7 @@ append js
           setTimeout(function(){window.location.href = '/events';}, 3000);
         },
         onFailure: function(res) {
-          console.log(res);
-          //- window.location.href = '/events';
+          window.location.href = '/events';
         }
       });
       
@@ -101,7 +100,7 @@ append js
           return false;
         },
         onSuccess: function(res) {
-          $('.disabled.form, .disabled.field, .disabled.button').removeClass('disabled');
+          $('.disabled.segment, .disabled.field, .disabled.button').removeClass('disabled');
           $(this).removeClass('loading').addClass('disabled');
           $('form').form('set values', {
             title: res.event.title,
@@ -154,7 +153,7 @@ block body
     h2.ui.blue.header
       i.edit.icon
       .content 
-        | Edit Your Events at Social Services SG
+        | View / Edit Your Events at Social Services SG
         .sub.header
           | View and edit your events.
   .ui.small.borderless.main.menu
@@ -165,8 +164,32 @@ block body
         .menu
           a.item(href='/account') Edit my account
           a.item(href='/') Publish a new event
-          a.item(href='/api/logout') Log-out
+          a.item(href='/api/logout') Log-out      
   .ui.bottom.text.container
+    .ui.segment
+      h3.ui.header Events Status
+      for event in events
+        h3.ui.blue.header
+          i.users.icon
+          | #{event.title}
+        table.ui.small.compact.blue.table
+          thead
+            tr
+              th(colspan='4') #{event.participants.length + ' Participants registered'}
+          tbody
+            for participant in event.participants
+              tr
+                td.collapsing
+                  i.user.icon
+                  | #{participant.name}
+                td.collapsing
+                  if participant.phone
+                    i.phone.icon
+                    | #{participant.phone}
+                td.collapsing
+                  i.mail.outline.icon
+                  | #{participant.email}
+                td= participant.description
     .ui.segment
       h3.ui.header Choose one event to edit.
       select.ui.fluid.event.dropdown

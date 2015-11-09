@@ -110,7 +110,7 @@ exports.getEventsPage = function(req, res) {
           res.redirect('/');
         else
           // query all events published by the organizer
-          Event.find({organizer: organizer._id}, function(err, events) {
+          Event.find({organizer: organizer._id}).populate('participants').exec(function(err, events) {
             if(err || !events)
               res.redirect('/');
             else
