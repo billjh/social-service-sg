@@ -1,0 +1,156 @@
+extends layout
+
+block title
+  title Organizer - Social Services SG
+
+append css
+  style(type='text/css').
+    .top.container {
+      margin-top: 2em;
+    }
+    .bottom.container {
+      margin-bottom: 2em;
+    }
+
+append js
+  script.
+    $(document).ready(function() {
+      $('.main.menu').visibility({type: 'fixed'});
+      $('.dropdown').dropdown();
+      $('form').form({
+        inline: true,
+        on: 'submit',
+        fields: {
+          title: {
+            identifier: 'title',
+            rules: [{
+              type: 'empty',
+              prompt: 'Please give a title to your event.'
+            }]
+          },
+          date: {
+            identifier: 'date',
+            rules: [{
+              type: 'regExp[/^[0-9]{4}-[0-9]{2}-[0-9]{2}/g]',
+              prompt: 'Please enter a valid date in YYYY-MM-DD.'
+            }]
+          },
+          vacancy: {
+            identifier: 'vacancy',
+            rules: [{
+              type: 'regExp[/^[0-9]+$/g]',
+              prompt: 'Please enter a valid number for vacancy.'
+            }]
+          }
+        }
+      }).api({
+        url: '/api/event',
+        method: 'post',
+        beforeSend: function(setting) {
+          setting.data.title = $('form').form('get value', 'title');
+          setting.data.date = $('form').form('get value', 'date');
+          setting.data.vacancy = $('form').form('get value', 'vacancy');
+          setting.data.description = $('form').form('get value', 'description');
+          setting.data.phone = $('form').form('get value', 'phone');
+          switch($('form').form('get value', 'theme')) {
+            case 'children':
+              setting.data.theme = 'Children and Youth'; break;
+            case 'family':
+              setting.data.theme = 'Family'; break;
+            case 'disability':
+              setting.data.theme = 'Disability'; break;
+            case 'mental':
+              setting.data.theme = 'Mental Health'; break;
+            case 'eldercare':
+              setting.data.theme = 'Eldercare'; break;
+            default:
+              setting.data.theme = ''
+          }
+          setting.data.address = $('form').form('get value', 'address');
+          $('.submit.button').addClass('loading');
+          return setting;
+        },
+        successTest: function(res) {
+          if (res && res.status)
+            return res.status == 201;
+          return false;
+        },
+        onResponse: function(res) {
+          $('.submit.button').removeClass('loading');
+        },
+        onSuccess: function(res) {
+          $('#success').removeClass('hidden');
+          $('html, body').animate({ scrollTop: $('document').height() }, 500);
+        },
+        onFailure: function(res) {
+          window.location.href = '/';
+        }
+      });
+    });
+
+block body
+  .ui.top.text.container
+    h2.ui.blue.header
+      i.users.icon
+      .content #{'Hi, ' + organizer.name + ', Welcome to Social Services SG'}
+        .sub.header Publish your social service event to make Singapore a better place.
+  .ui.small.borderless.main.menu
+    .ui.text.container
+      .ui.dropdown.item
+        i.user.icon
+        | Account
+        .menu
+          a.item(href='/account') Edit my account
+          a.item(href='/events') Edit my events
+          a.item(href='/api/logout') Log-out
+  .ui.bottom.text.container
+    #success.ui.hidden.positive.message
+      .header Congratulations!
+      p The event has been published. 
+        a(href='/events') View my events now.
+    form.ui.tall.stacked.segment.form
+      h3.ui.header Publish Your New Event Here
+      .field
+        label Event Title
+        .ui.right.corner.labeled.left.icon.input
+          i.edit.icon
+          input(type='text', name='title', placeholder='Name your event')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Event Start Date
+        .ui.right.corner.labeled.left.icon.input
+          i.calendar.icon
+          input(type='text', name='date', placeholder='YYYY-MM-DD, eg. 2016-03-31')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Event Theme
+        select.ui.dropdown(name='theme')
+          option(value='') Select Event Theme
+          option(value='children') Children and Youth Services
+          option(value='family') Family Services
+          option(value='disability') Disability Services
+          option(value='mental') Mental Health Services
+          option(value='eldercare') Eldercare Services
+      .field
+        label Event Location
+        .ui.left.icon.input
+          i.marker.icon
+          input(type='text', name='address', placeholder='Address of the event')
+      .field
+        label Event Datails
+        textarea(name='description', rows='8')
+      .field
+        label Event Vacancy
+        .ui.right.corner.labeled.input
+          input(type='text', name='vacancy', placeholder='Eg. 15 (0 for unlimited)')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Contact Number for Event
+        .ui.left.icon.input
+          i.call.icon
+          input(type='text', name='phone', placeholder="Contact for event's matter")
+      .ui.fluid.large.blue.submit.button
+        | Publish the Event

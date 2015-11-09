@@ -1,0 +1,150 @@
+extends layout
+
+block title
+  title Admin - Social Services SG
+  
+append css
+  style(type='text/css').
+    .top.container {
+      margin-top: 2em;
+    }
+    .bottom.container {
+      margin-bottom: 2em;
+    }
+
+append js
+  script.
+    $(document).ready(function() {
+      $('.main.menu').visibility({type: 'fixed'});
+      $('#signup')
+        .form({
+          inline: true,
+          on: 'submit',
+          fields: {
+            email: {
+              identifier: 'email',
+              rules: [{
+                type: 'email',
+                prompt: 'Please enter a valid email.'
+              }]
+            },
+            password: {
+              identifier: 'password',
+              rules: [{
+                type: 'length[6]',
+                prompt: 'Your password must be at least 6 characters.'
+              }]
+            },
+            password_verify: {
+              identifier: 'password_verify',
+              rules: [{
+                type: 'match[password]',
+                prompt: 'Please type your password again correctly. '
+              }]
+            },
+            name: {
+              identifier: 'name',
+              rules: [{
+                type: 'empty',
+                prompt: 'Organization name is required. '
+              }]
+            }
+          }
+        })
+        .api({
+          url: '/api/organizer',
+          method: 'post',
+          beforeSend: function(setting) {
+            setting.data.email = $('#signup').form('get value', 'email');
+            setting.data.password = $('#signup').form('get value', 'password');
+            setting.data.name = $('#signup').form('get value', 'name');
+            setting.data.phone = $('#signup').form('get value', 'phone');
+            setting.data.address = $('#signup').form('get value', 'address');
+            $('.submit.button').addClass('loading');
+            $('#failure').addClass('hidden');
+            $('#success').addClass('hidden');
+            return setting;
+          },
+          successTest: function(res) {
+            if (res && res.status)
+              return res.status == 201;
+            return false;
+          },
+          onResponse: function(res) {
+            $('.submit.button').removeClass('loading');
+          },
+          onSuccess: function(res) {
+            $('#success').removeClass('hidden');
+            $('html, body').animate({ scrollTop: $('document').height() }, 500);
+          },
+          onFailure: function(res) {
+            if(res.status == 409) {
+              $('#failure').removeClass('hidden');
+              $('html, body').animate({ scrollTop: $('document').height() }, 500);
+            }
+          }
+        });
+    });
+
+block body
+  .ui.top.text.container
+    h2.ui.blue.header
+      i.users.icon      
+      .content
+        | Hi, Administrator of Social Services SG
+        .sub.header
+          | Create an account for Organizer to publish social services events.
+  .ui.small.borderless.main.menu
+    .ui.text.container
+      a.item(href='/api/logout')
+        i.sign.out.icon 
+        | Log-out
+  .ui.bottom.text.container
+    #failure.ui.hidden.negative.message
+      .header Sorry we can't create this account.
+      p That email address has been used. Contact organizer now.
+    #success.ui.hidden.positive.message
+      .header Congratulations!
+      p The organizer account has been created. 
+        a(href='/') Create another now.
+    form#signup.ui.tall.stacked.segment.form
+      h3.ui.header
+        | Organizer Account Information
+      .field
+        label Account ID
+        .ui.right.corner.labeled.left.icon.input
+          i.mail.icon
+          input(type='text', name='email', placeholder='E-mail address')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password', placeholder='At least 6 characters')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Verify Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password_verify', placeholder='Please type it again')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Organization Name
+        .ui.right.corner.labeled.left.icon.input
+          i.building.icon
+          input(type='text', name='name')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Organization Contact Number
+        .ui.left.icon.input
+          i.call.icon
+          input(type='text', name='phone')
+      .field
+        label Organization Address
+        textarea(name='address', rows='2', form='signup')
+      .ui.fluid.large.blue.submit.button
+        | Create Organizer Account

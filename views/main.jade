@@ -1,0 +1,127 @@
+extends layout
+
+block title
+  title Main - Social Services SG
+
+append css
+  style(type='text/css').
+    .top.container {
+      margin-top: 2em;
+    }
+    .bottom.container {
+      margin-bottom: 2em;
+    }
+
+append js
+  script.
+    $(document).ready(function() {
+      $('.main.menu').visibility({type: 'fixed'});
+      $('.dropdown').dropdown();
+      $('.join.button').api({
+        url: '/api/join',
+        method: 'post',
+        beforeSend: function(setting) {
+          $(this).addClass('loading');
+          setting.data.eid = this.id;
+          return setting;
+        },
+        successTest: function(res) {
+          if (res && res.status)
+            return res.status == 201;
+          return false;
+        },
+        onSuccess: function(res) {
+          location.reload();
+        },
+        onFailure: function(res) {
+          $('#'+this.id+'.hidden.message').removeClass('hidden');
+        }
+      });
+      $('.withdraw.button').api({
+        url: '/api/join',
+        method: 'delete',
+        beforeSend: function(setting) {
+          $(this).addClass('loading');
+          setting.data.eid = this.id;
+          return setting;
+        },
+        onResponse: function(res) {
+          location.reload();
+        }
+      });
+    });
+
+block body
+  .ui.top.text.container
+    h2.ui.blue.header
+      i.users.icon
+      .content #{'Hi' + (participant ? ' '+participant.name : '') + ', Welcome to Social Services SG'}
+        .sub.header Join these greatest social service events, and make Singapore a better place.
+  .ui.small.borderless.main.menu
+    .ui.text.container
+      if !participant
+        a.item(href='/login')
+          i.user.icon
+          | Log-in
+      if participant
+        .ui.dropdown.item
+          i.user.icon
+          | Account
+          .menu
+            a.item(href='/account') Edit my account
+            a.item(href='/events') View my events
+            a.item(href='/api/logout') Log-out
+      .search.item
+        .ui.transparent.left.icon.input
+          i.search.icon
+          input(type='text', name='search', placeholder='Search by location')
+  .ui.bottom.text.container
+    .ui.horizontal.statistic
+      .value= events.length
+      .label Published events
+    each event in events
+      .ui.segment
+        if participant && event.participants.indexOf(participant._id) > -1
+          .ui.red.ribbon.label
+            i.heart.icon
+            | Joined
+        h2.ui.blue.header
+          .content= event.title
+            .sub.header= 'Organized by - ' + event.organizer.name
+        .ui.stackable.three.column.grid
+          if event.date
+            .column
+              i.calendar.icon
+              | #{event.date.toISOString().substring(0, 10)}
+          if event.theme
+            .column
+              i.child.icon
+              | #{event.theme}
+          if event.phone || event.organizer.phone
+            .column
+              i.call.icon
+              | #{event.phone || event.organizer.phone}
+        p
+        each line in event.description.split('\n')
+          p= line
+        p
+        if event.address.name
+            i.marker.icon
+            | #{event.address.name}
+        p
+        if participant
+          if event.participants.indexOf(participant._id) > -1
+            .ui.labeled.button
+              .ui.basic.withdraw.red.button(id= event._id)
+                  i.heart.icon 
+                  | Click to Withdraw
+              .ui.red.left.label 
+                | #{event.participants.length+' / '+(event.vacancy ? event.vacancy : '∞')}
+          else
+            .ui.labeled.button
+              .ui.basic.join.red.button(id= event._id)
+                  i.empty.heart.icon
+                  | Click to Join
+              .ui.red.left.label 
+                | #{event.participants.length+' / '+(event.vacancy ? event.vacancy : '∞')}
+          .ui.hidden.negative.message(id= event._id) Failed to join this event.

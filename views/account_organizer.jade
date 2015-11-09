@@ -1,0 +1,130 @@
+extends layout
+
+block title
+  title Edit Account - Social Services SG
+  
+append css
+  style(type="text/css").
+    .container {
+      margin-top: 2em;
+    }
+
+append js
+  script.
+    $(document).ready(function() {
+      $('form')
+        .form({
+          inline: true,
+          on: 'submit',
+          fields: {
+            password: {
+              identifier: 'password',
+              rules: [{
+                type: 'length[6]',
+                prompt: 'Your password must be at least 6 characters.'
+              }]
+            },
+            password_verify: {
+              identifier: 'password_verify',
+              rules: [{
+                type: 'match[password]',
+                prompt: 'Please type your password again correctly. '
+              }]
+            },
+            name: {
+              identifier: 'name',
+              rules: [{
+                type: 'empty',
+                prompt: 'Organization name is required. '
+              }]
+            }
+          }
+        })
+        .api({
+          url: '/api/organizer',
+          method: 'put',
+          beforeSend: function(setting) {
+            setting.data.password = $('form').form('get value', 'password');
+            setting.data.name = $('form').form('get value', 'name');
+            setting.data.phone = $('form').form('get value', 'phone');
+            setting.data.address = $('form').form('get value', 'address');
+            $('.submit.button').addClass('loading');
+            return setting;
+          },
+          successTest: function(res) {
+            if (res && res.status)
+              return res.status == 200;
+            return false;
+          },
+          onResponse: function(res) {
+            $('.submit.button').removeClass('loading');
+          },
+          onSuccess: function(res) {
+            $('#success').removeClass('hidden');
+            $('html, body').animate({ scrollTop: $('document').height() }, 500);
+            setTimeout(function(){window.location.href = '/';}, 5000);
+          },
+          onFailure: function(res) {
+            window.location.href = '/';
+          }
+        }).form('set values', {
+          email:    !{JSON.stringify(organizer.email)},
+          password: !{JSON.stringify(organizer.account.password)},
+          name:     !{JSON.stringify(organizer.name)},
+          phone:    !{JSON.stringify(organizer.phone) || '""'} ,
+          address:  !{JSON.stringify(organizer.address) || '""'} 
+        });
+    });
+
+block body
+  .ui.text.container
+    #success.ui.hidden.positive.message
+      .header Congratulations!
+      p You have successfully edited your account. Redirecting to main page shortly.
+    h2.ui.blue.header
+      i.edit.icon
+      .content
+        | Edit Your Account at Social Services SG
+        .sub.header
+          | View and edit your account information. 
+    form.ui.tall.stacked.segment.form
+      h3.ui.header
+        | Organizer Account Information
+      .field
+        label Account ID
+        .ui.right.corner.labeled.disabled.left.icon.input
+          i.mail.icon
+          input(type='text', name='email', placeholder='E-mail address')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password', placeholder='At least 6 characters')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Verify Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password_verify', placeholder='Please type it again')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Organization Name
+        .ui.right.corner.labeled.left.icon.input
+          i.building.icon
+          input(type='text', name='name')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Organization Contact Number
+        .ui.left.icon.input
+          i.call.icon
+          input(type='text', name='phone')
+      .field
+        label Organization Address
+        textarea(name='address', rows='2')
+      .ui.blue.submit.button Confirm
+      a.ui.button(href='/') Cancel

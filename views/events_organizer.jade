@@ -1,0 +1,229 @@
+extends layout
+
+block title
+  title My Events - Social Services SG
+
+append css
+  style(type='text/css').
+    .top.container {
+      margin-top: 2em;
+    }
+    .bottom.container {
+      margin-bottom: 2em;
+    }
+    .choose.button {
+      margin-top: 10px;
+    }
+
+append js
+  script.
+    $(document).ready(function() {
+      $('.main.menu').visibility({type: 'fixed'});
+      
+      $('.dropdown').dropdown();
+            
+      $('form').form({
+        inline: true,
+        on: 'submit',
+        fields: {
+          title: {
+            identifier: 'title',
+            rules: [{
+              type: 'empty',
+              prompt: 'Please give a title to your event.'
+            }]
+          },
+          date: {
+            identifier: 'date',
+            rules: [{
+              type: 'regExp[/^[0-9]{4}-[0-9]{2}-[0-9]{2}/g]',
+              prompt: 'Please enter a valid date in YYYY-MM-DD.'
+            }]
+          },
+          vacancy: {
+            identifier: 'vacancy',
+            rules: [{
+              type: 'regExp[/^[0-9]+$/g]',
+              prompt: 'Please enter a valid number for vacancy.'
+            }]
+          }
+        }
+      }).api({
+        url: '/api/event',
+        method: 'put',
+        beforeSend: function(setting) {
+          setting.data.eid = $('.event.dropdown').dropdown('get value');
+          setting.data.event = { 
+            title:       $('form').form('get value', 'title'),
+            date:        $('form').form('get value', 'date'),
+            vacancy:     $('form').form('get value', 'vacancy'),
+            description: $('form').form('get value', 'description'),
+            phone:       $('form').form('get value', 'phone'),
+            address:     $('form').form('get value', 'address'),
+            theme:      {'children': 'Children and Youth',
+                         'family': 'Family',
+                         'disability': 'Disability',
+                         'mental': 'Mental Health',
+                         'eldercare': 'Eldercare'
+                        }[$('form').form('get value', 'theme')]  
+          }
+          $('.submit.button').addClass('loading');
+          return setting;
+        },
+        successTest: function(res) {
+          if (res && res.status)
+            return res.status == 200;
+          return false;
+        },
+        onSuccess: function(res) {
+          $('.submit.button').removeClass('loading');
+          $('#success').removeClass('hidden');
+          $('html, body').animate({ scrollTop: $('document').height() }, 500);
+          setTimeout(function(){window.location.href = '/events';}, 3000);
+        },
+        onFailure: function(res) {
+          console.log(res);
+          //- window.location.href = '/events';
+        }
+      });
+      
+      $('.choose.button').api({
+        url: '/api/event',
+        method: 'get',
+        beforeSend: function(setting) {
+          $(this).addClass('loading');
+          setting.data.eid = $('.event.dropdown').addClass('disabled').dropdown('get value');
+          return setting;
+        },
+        successTest: function(res) {
+          if (res && res.status)
+            return res.status == 200;
+          return false;
+        },
+        onSuccess: function(res) {
+          $('.disabled.form, .disabled.field, .disabled.button').removeClass('disabled');
+          $(this).removeClass('loading').addClass('disabled');
+          $('form').form('set values', {
+            title: res.event.title,
+            date: res.event.date &&  res.event.date.substr(0,10),
+            address: res.event.address.name,
+            description: res.event.description,
+            vacancy: res.event.vacancy ? res.event.vacancy : 0,
+            phone: res.event.phone,
+            theme: {
+              'Children and Youth': 'children',
+              'Family': 'family',
+              'Disability': 'disability',
+              'Mental Health': 'mental',
+              'Eldercare': 'eldercare'
+            }[res.event.theme]
+          });
+        },
+        onFailure: function(res) {
+          window.location.href = '/events';
+        }
+      });
+      
+      $('.delete.button').api({
+        url: '/api/event',
+        method: 'delete',
+        beforeSend: function(setting) {
+          $(this).addClass('loading');
+          setting.data.eid = $('.event.dropdown').dropdown('get value');
+          return setting;
+        },
+        successTest: function(res) {
+          if (res && res.status)
+            return res.status == 200;
+          return false;
+        },
+        onSuccess: function(res) {
+          $(this).removeClass('loading');
+          $('#delete').removeClass('hidden');
+          $('html, body').animate({ scrollTop: $('document').height() }, 500);
+          setTimeout(function(){window.location.href = '/events';}, 3000);
+        },
+        onFailure: function(res) {
+          window.location.href = '/events';
+        }
+      });
+    });
+
+block body
+  .ui.top.text.container
+    h2.ui.blue.header
+      i.edit.icon
+      .content 
+        | Edit Your Events at Social Services SG
+        .sub.header
+          | View and edit your events.
+  .ui.small.borderless.main.menu
+    .ui.text.container
+      .ui.dropdown.item
+        i.user.icon
+        | Account
+        .menu
+          a.item(href='/account') Edit my account
+          a.item(href='/') Publish a new event
+          a.item(href='/api/logout') Log-out
+  .ui.bottom.text.container
+    .ui.segment
+      h3.ui.header Choose one event to edit.
+      select.ui.fluid.event.dropdown
+        option(value='') Select one event
+        for event in events
+          option(value= event._id)= event.title
+      .ui.blue.choose.button Choose
+      if !events.length
+        .ui.negative.message
+          | You haven't published any events. 
+          a(href='/') Publish one now.
+    #success.ui.hidden.positive.message You have successfully edited this event.
+    #delete.ui.hidden.positive.message You have successfully deleted this event.
+    form.ui.tall.stacked.disabled.segment.form
+      h3.ui.header Edit Your Event
+      .disabled.field
+        label Event Title
+        .ui.right.corner.labeled.left.icon.input
+          i.edit.icon
+          input(type='text', name='title', placeholder='Name your event')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .disabled.field
+        label Event Start Date
+        .ui.right.corner.labeled.left.icon.input
+          i.calendar.icon
+          input(type='text', name='date', placeholder='YYYY-MM-DD, eg. 2016-03-31')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .disabled.field
+        label Event Theme
+        select.ui.in-form.dropdown(name='theme')
+          option(value='') Select Event Theme
+          option(value='children') Children and Youth Services
+          option(value='family') Family Services
+          option(value='disability') Disability Services
+          option(value='mental') Mental Health Services
+          option(value='eldercare') Eldercare Services
+      .disabled.field
+        label Event Location
+        .ui.left.icon.input
+          i.marker.icon
+          input(type='text', name='address', placeholder='Address of the event')
+      .disabled.field
+        label Event Datails
+        textarea(name='description', rows='8')
+      .disabled.field
+        label Event Vacancy
+        .ui.right.corner.labeled.input
+          input(type='text', name='vacancy', placeholder='Eg. 15 (0 for unlimited)')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .disabled.field
+        label Contact Number for Event
+        .ui.left.icon.input
+          i.call.icon
+          input(type='text', name='phone', placeholder="Contact for event's matter")
+      .ui.blue.disabled.submit.button Confirm
+      a.ui.disabled.button(href='/events') Cancel
+      .ui.red.disabled.delete.button ! Delete !

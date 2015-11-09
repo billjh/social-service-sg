@@ -1,0 +1,186 @@
+extends layout
+
+block title
+  title Signup - Social Services SG
+  
+append css
+  style(type="text/css").
+    .container {
+      margin-top: 2em;
+    }
+
+append js
+  script.
+    $(document)
+      .ready(function() {
+        var validation = 
+        {
+          inline: true,
+          on: 'submit',
+          fields: {
+            email: {
+              identifier: 'email',
+              rules: [{
+                type: 'email',
+                prompt: 'Please enter a valid email.'
+              }]
+            },
+            password: {
+              identifier: 'password',
+              rules: [{
+                type: 'length[6]',
+                prompt: 'Your password must be at least 6 characters. '
+              }]
+            },
+            password_verify: {
+              identifier: 'password_verify',
+              rules: [{
+                type: 'match[password]',
+                prompt: 'Please type your password again correctly. '
+              }]
+            },
+            name: {
+              identifier: 'name',
+              rules: [{
+                type: 'empty',
+                prompt: 'Please tell us your name. '
+              }]
+            },
+            terms: {
+              identifier: 'terms',
+              rules: [{
+                type: 'checked',
+                prompt: 'You must agree to the terms and conditions to continue. '
+              }]
+            }
+          }
+        };
+      
+        function getFields() {
+          var fields = $('#signup').form('get value', 'fields');
+          fields = fields ? fields.join() : '';
+          var fieldsData = {
+            children:    !!(fields.indexOf('children') > -1),
+            family:      !!(fields.indexOf('family') > -1),
+            disability:  !!(fields.indexOf('disability') > -1),
+            mental:      !!(fields.indexOf('mental') > -1),
+            eldercare:   !!(fields.indexOf('eldercare') > -1)    
+          };
+          return fieldsData;
+        };
+
+        $('.dropdown').dropdown();
+        
+        $('.ui.form')
+          .form(validation)
+          .api({
+            url: '/api/participant',
+            method: 'post',
+            beforeSend: function(setting) {
+              setting.data.email = $('#signup').form('get value', 'email');
+              setting.data.password = $('#signup').form('get value', 'password');
+              setting.data.name = $('#signup').form('get value', 'name');
+              setting.data.phone = $('#signup').form('get value', 'phone');
+              setting.data.description = $('#signup').form('get value', 'description');
+              setting.data.fields = getFields();
+              $('.submit.button').addClass('loading');
+              return setting;
+            },
+            successTest: function(res) {
+              if (res && res.status) 
+                return res.status == 201;
+              return false;
+            },
+            onResponse: function(res) {
+              $('.submit.button').removeClass('loading');
+            },
+            onSuccess: function(res) {
+              $('#failure').addClass('hidden');
+              $('#success').removeClass('hidden');
+              $('html, body').animate({ scrollTop: $('document').height() }, 500);
+              setTimeout(function(){window.location.href = '/login';}, 5000);
+            },
+            onFailure: function(res) {
+              $('#success').addClass('hidden');
+              $('#failure').removeClass('hidden');
+              $('html, body').animate({ scrollTop: $('document').height() }, 500);
+            }
+          });
+        });
+
+block body
+  .ui.text.container
+    #failure.ui.hidden.negative.message
+      .header We're sorry we can't create this account.
+      p That email address has been used. 
+    #success.ui.hidden.positive.message
+      .header Congratulations!
+      p Your account has been created. Redirecting to login page shortly.
+    h2.ui.blue.header
+      i.users.icon      
+      .content
+        | Sign up for Social Services SG
+        .sub.header
+          | Create an account for Participant and join our social service events.
+    .ui.segment
+      | Already have an account? 
+      a(href='/login') Log in
+      |  now. Not ready? Go back to 
+      a(href='/') main page
+      |  .
+    form#signup.ui.tall.stacked.segment.form
+      h3.ui.header
+        | Account Information
+      .field
+        label Your Account ID
+        .ui.right.corner.labeled.left.icon.input
+          i.mail.icon
+          input(type='text', name='email', placeholder='E-mail address')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Your Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password', placeholder='At least 6 characters')
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Verify Your Password
+        .ui.right.corner.labeled.left.icon.input
+          i.lock.icon
+          input(type='password', name='password_verify', placeholder='Please type it again')
+          .ui.right.corner.label
+            i.asterisk.icon
+      h3.ui.header
+        | Things About You
+      .field
+        label Your Full Name
+        .ui.right.corner.labeled.left.icon.input
+          i.user.icon
+          input(type='text', name='name', placeholder="Only for event organizers' use")
+          .ui.right.corner.label
+            i.asterisk.icon
+      .field
+        label Your Phone Number
+        .ui.left.icon.input
+          i.mobile.icon
+          input(type='text', name='phone', placeholder="Only for event organizers' use")
+      .field
+        label A Short Description about You
+        textarea(name='description', rows='3', form='signup')
+      .field
+        label Specialized or Interested Fields of Services
+        select.ui.dropdown(name='fields', multiple='')
+          option(value='') Select your fields
+          option(value='children') Children and Youth Services
+          option(value='family') Family Services
+          option(value='disability') Disability Services
+          option(value='mental') Mental Health Services
+          option(value='eldercare') Eldercare Services
+      .field
+        .ui.checkbox
+          input(type='checkbox', name='terms')
+          label I agree to the terms and conditions (that do not exist yet). 
+      .ui.fluid.large.blue.submit.button
+        | Sign up

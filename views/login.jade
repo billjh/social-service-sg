@@ -1,0 +1,112 @@
+extends layout.jade
+
+block title
+  title Login - Social Services SG
+
+append css
+  style(type='text/css').
+    .column {
+      max-width: 450px;
+    }
+    #top {
+      margin-top: 2em;
+    }
+  
+append js
+  script.
+    $(document)
+      .ready(function() {
+        $('.ui.form')
+          .form({
+            on: 'submit',
+            fields: {
+              email: {
+                identifier  : 'email',
+                rules: [
+                  {
+                    type   : 'email',
+                    prompt : 'Please enter a valid e-mail'
+                  }
+                ]
+              },
+              password: {
+                identifier  : 'password',
+                rules: [
+                  {
+                    type   : 'length[6]',
+                    prompt : 'Your password must be at least 6 characters'
+                  }
+                ]
+              }
+            }
+          }).api({
+            url: '/api/login',
+            method: 'post',
+            beforeSend: function(setting) {
+              $('.ui.negative').addClass('hidden');
+              $('.submit.button').addClass('loading');
+              setting.data.username = $('.ui.form').form('get value', 'email');
+              setting.data.password = $('.ui.form').form('get value', 'password');
+              return setting;
+            },
+            successTest: function(res) {
+              if (res && res.status) 
+                return res.status == 201;
+              return false;
+            },
+            onSuccess: function(res) {
+              window.location.href = '/';
+            },
+            onFailure: function(res) {
+              $('.submit.button').removeClass('loading');
+              $('.ui.negative').removeClass('hidden');
+            }
+          })
+        ;
+      })
+    ;
+
+block body
+  .ui.center.aligned.grid
+    .column
+      h2#top.ui.blue.icon.header
+        i.users.icon
+        | Log-in to Social Services SG
+      form.ui.large.form
+        .ui.stacked.segment
+          .field
+            .ui.left.icon.input
+              i.user.icon
+              input(type='text', name='email', placeholder='E-mail address')
+          .field
+            .ui.left.icon.input
+              i.lock.icon
+              input(type='password', name='password', placeholder='Password')
+          .ui.fluid.large.blue.submit.button Login
+        .ui.error.message
+      #failure.ui.hidden.negative.message
+        .header Log-in failed.
+        | Please check your email and password.
+      .ui.message
+        .header
+          | Sign up as a Participant
+        i.heart.icon
+        | An account that can join events. 
+        a(href='/signup') Sign up 
+        | now.
+      .ui.message
+        .header
+          | Sign up as an Organizer
+        | An account that can publish events.
+        br
+        i.mail.icon
+        a(href='mailto:hello@socialservice.sg') Contact us 
+        | by email and we will create it for you.
+      .ui.message
+        .header
+          | Not ready?
+        | All right, you may go back to 
+        a(href='/') main page
+        | .
+        br
+        | I am sure there are events that will interest you.
