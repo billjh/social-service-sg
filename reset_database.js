@@ -107,7 +107,9 @@ var ccfsc_cs = new Event({
   description: 'Circle of Care • Child Services is organizing a Single-Parent Program to promote the psycho-emotional wellbeing of single parent families towards stability, growth and acceptance of the new family unit. It is a half-day program to visit the homes of the single-parent families. \nVolunteers are needed to visit the families together with the staff of the service centre on the event day. \nCircle of Care • Child Services is one of the Family Service Centres in Singapore, concerned with the wellbeing of children in Singapore. Volunteers can gain experience of showing care for single families and helping to prepare for voluntary events. 15 families will be visited on event day.',
   theme: 'Family',
   address: {
-    name: carecorner_info.address
+    name: 'WOODLANDS AVENUE 6',
+    x: 24595.8943,
+    y: 46796.9189
   },
   participants: [
     bob_info._id
@@ -125,7 +127,9 @@ var cc_sdcfe = new Event({
   phone: '62536979',
   theme: 'Eldercare',
   address: {
-    name: 'Blk 235 Lor 8 Toa Payoh, #01-100 Singapore 310235'
+    name: 'TOA PAYOH BRIDGE',
+    x: 31392.6616,
+    y: 34738.8717
   },
   participants: [
     bob_info._id,
@@ -142,7 +146,9 @@ var sadeaf_fd = new Event({
   description: 'SADeaf Flag Day is one of the major fundraising efforts for Singapore Association for the Deaf to support essential services for the Deaf and hard-of-hearing community. These include sign language interpretation service; note-taking; support for students with hearing loss; and audiology services. \nThe Singapore Association for the Deaf (SADeaf) facilitates communications of persons with hearing impairment with the community for educational, employment, legal and recreational purposes. SADeaf Community Services also provide counselling and case management to persons with hearing impairment via specialised mode of communication.',
   theme: 'Disability',
   address: {
-    name: 'SADeaf HQ at Mountbatten'
+    name: 'SADEAF COMMUNITY SERVICES (VOLUNTARY WELFARE ORGS)',
+    x: 33167.0173,
+    y: 32244.0010
   },
   participants: [
     bob_info._id,

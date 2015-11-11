@@ -21,6 +21,12 @@ append js
       $('.main.menu').visibility({type: 'fixed'});
       
       $('.dropdown').dropdown();
+      
+      $('.search.dropdown').dropdown({
+        apiSettings: {
+          url: '/api/address-search?q={query}&type=publish'
+        }
+      });
             
       $('form').form({
         inline: true,
@@ -59,7 +65,6 @@ append js
             vacancy:     $('form').form('get value', 'vacancy'),
             description: $('form').form('get value', 'description'),
             phone:       $('form').form('get value', 'phone'),
-            address:     $('form').form('get value', 'address'),
             theme:      {'children': 'Children and Youth',
                          'family': 'Family',
                          'disability': 'Disability',
@@ -67,6 +72,14 @@ append js
                          'eldercare': 'Eldercare'
                         }[$('form').form('get value', 'theme')]  
           }
+          xy = JSON.parse('['+$('.search.dropdown').dropdown('get value')+']');
+          console.log(xy);
+          console.log($('.search.dropdown').dropdown('get text'));
+          setting.data.event.address = {
+            name: $('.search.dropdown').dropdown('get text'),
+            x: xy[0],
+            y: xy[1]
+          };
           $('.submit.button').addClass('loading');
           return setting;
         },
@@ -105,7 +118,6 @@ append js
           $('form').form('set values', {
             title: res.event.title,
             date: res.event.date &&  res.event.date.substr(0,10),
-            address: res.event.address.name,
             description: res.event.description,
             vacancy: res.event.vacancy ? res.event.vacancy : 0,
             phone: res.event.phone,
@@ -117,6 +129,12 @@ append js
               'Eldercare': 'eldercare'
             }[res.event.theme]
           });
+          if(res.event.address) {
+            $('.search.dropdown').dropdown('set text', res.event.address.name);
+            $('.search.dropdown').dropdown('set value', 
+              res.event.address.x+','+res.event.address.y
+            );
+          }
         },
         onFailure: function(res) {
           window.location.href = '/events';
@@ -166,6 +184,8 @@ block body
           a.item(href='/') Publish a new event
           a.item(href='/api/logout') Log-out      
   .ui.bottom.text.container
+    #success.ui.hidden.positive.message You have successfully edited this event.
+    #delete.ui.hidden.positive.message You have successfully deleted this event.
     .ui.segment
       h3.ui.header Events Status
       for event in events
@@ -201,8 +221,6 @@ block body
         .ui.negative.message
           | You haven't published any events. 
           a(href='/') Publish one now.
-    #success.ui.hidden.positive.message You have successfully edited this event.
-    #delete.ui.hidden.positive.message You have successfully deleted this event.
     form.ui.tall.stacked.disabled.segment.form
       h3.ui.header Edit Your Event
       .disabled.field
@@ -230,9 +248,8 @@ block body
           option(value='eldercare') Eldercare Services
       .disabled.field
         label Event Location
-        .ui.left.icon.input
-          i.marker.icon
-          input(type='text', name='address', placeholder='Address of the event')
+        select.ui.search.dropdown.selection
+          input(type='hidden', name='address', placeholder='Address of the event')
       .disabled.field
         label Event Datails
         textarea(name='description', rows='8')

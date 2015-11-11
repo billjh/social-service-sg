@@ -16,7 +16,6 @@ append js
   script.
     $(document).ready(function() {
       $('.main.menu').visibility({type: 'fixed'});
-      $('.dropdown').dropdown();
       $('form').form({
         inline: true,
         on: 'submit',
@@ -66,7 +65,12 @@ append js
             default:
               setting.data.theme = ''
           }
-          setting.data.address = $('form').form('get value', 'address');
+          xy = JSON.parse('['+$('.search.dropdown').dropdown('get value')+']');
+          setting.data.address = {
+            name: $('.search.dropdown').dropdown('get text'),
+            x: xy[0],
+            y: xy[1]
+          };
           $('.submit.button').addClass('loading');
           return setting;
         },
@@ -84,6 +88,12 @@ append js
         },
         onFailure: function(res) {
           window.location.href = '/';
+        }
+      });
+      $('.dropdown').dropdown();
+      $('.search.dropdown').dropdown({
+        apiSettings: {
+          url: '/api/address-search?q={query}&type=publish'
         }
       });
     });
@@ -135,9 +145,8 @@ block body
           option(value='eldercare') Eldercare Services
       .field
         label Event Location
-        .ui.left.icon.input
-          i.marker.icon
-          input(type='text', name='address', placeholder='Address of the event')
+        select.ui.search.dropdown.selection
+          input(type='hidden', name='address', placeholder='Address of the event')
       .field
         label Event Datails
         textarea(name='description', rows='8')

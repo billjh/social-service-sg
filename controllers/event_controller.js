@@ -27,7 +27,7 @@ exports.postEvent = function(req, res) {
     description: req.body.description,
     phone: req.body.phone,
     theme: req.body.theme,
-    address: {name: req.body.address}
+    address: req.body.address
   });
   Organizer.findOne({email: req.user.email}, function(err, organizer) {
     if(err || !organizer)
@@ -56,7 +56,7 @@ exports.putEvent = function(req, res) {
       description: req.body.event.description,
       phone: req.body.event.phone,
       theme: req.body.event.theme,
-      address: {name: req.body.event.address}
+      address: req.body.event.address
     }, function(err) {
       if(err)
         return res.json({statsu: 404});

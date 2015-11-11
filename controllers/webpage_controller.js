@@ -12,8 +12,8 @@ exports.getMainPage = function(req, res) {
     if(req.user.atype === 'participant') {
       Event.find({}).sort('date').populate('organizer').exec(function(err, events) {
         // need to get participant's name
-        return Participant.findOne({email: req.user.email}, function(err, participant) {
-          res.render('main', {
+        Participant.findOne({email: req.user.email}, function(err, participant) {
+          return res.render('main', {
             events: events,
             participant: participant
           });
@@ -125,3 +125,25 @@ exports.getEventsPage = function(req, res) {
   // redirect to main page for visitors and admin
   res.redirect('/');
 };
+
+/*
+ * GET search page render
+ */
+exports.getSearchPage = function(req, res) {
+  // http://www.spatialreference.org/ref/epsg/svy21-singapore-tm/
+  var range = 5000;
+  // redirect to main page for admin and organizer
+  if(req.isAuthenticated() && (req.user.atype === 'organzier' || req.user.atype === 'admin')) {
+    return res.redirect('/');
+  }
+  Event.find()
+    .where('address.x').gt(req.query.x - range).lt(req.query.x + range)
+    .where('address.y').gt(req.query.y - range).lt(req.query.y + range)
+    .populate('organizer').exec(function(err, events) {
+      if(err) return res.redirect('/');
+      res.render('search', {
+        query: req.query,
+        events: events
+      });
+    });
+}

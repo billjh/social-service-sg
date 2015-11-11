@@ -26,4 +26,9 @@ router.get('/events',
   webpageController.getEventsPage
 );
 
+/* GET search result page */
+router.get('/search',
+  webpageController.getSearchPage
+);
+
 module.exports = router;

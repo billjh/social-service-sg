@@ -49,6 +49,13 @@ append js
           location.reload();
         }
       });
+      $('.search').search({
+        minCharacters: 3,
+        searchDelay: 1000,
+        apiSettings: {
+          url: '/api/address-search?q={query}&type=search'
+        }
+      });
     });
 
 block body
@@ -71,16 +78,23 @@ block body
             a.item(href='/account') Edit my account
             a.item(href='/events') View my events
             a.item(href='/api/logout') Log-out
-      .search.item
+      .ui.search.item
         .ui.transparent.left.icon.input
           i.search.icon
-          input(type='text', name='search', placeholder='Search by location')
+          input.prompt(type='text', name='search', placeholder='Search by location')
   .ui.bottom.text.container
-    .ui.horizontal.statistic
-      .value= events.length
-      .label Published events
+    if events.length
+      .ui.horizontal.statistic(id= events[0]._id)
+        .value= events.length
+        .label Published events
+    else
+      .ui.info.message
+        | Sorry, there are no events published right now.
     each event in events
-      .ui.segment
+      if event != events[0]
+        .ui.basic.segment(id= event._id)
+          .ui.divider
+      .ui.segment(id= event._id)
         if participant && event.participants.indexOf(participant._id) > -1
           .ui.red.ribbon.label
             i.heart.icon

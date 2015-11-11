@@ -3,6 +3,7 @@ var participantController = require('../controllers/participant_controller');
 var organizerController = require('../controllers/organizer_controller');
 var authController = require('../controllers/auth_controller');
 var eventController = require('../controllers/event_controller');
+var onemapController = require('../controllers/onemap_controller');
 
 /*
  * POST login API: login Account
@@ -93,6 +94,16 @@ router.post('/join',
 /*
  * DELETE join API: a participant withdraw from an event
  */
-router.delete('/join', eventController.deleteJoin);
+router.delete('/join',
+  eventController.deleteJoin
+);
+
+/*
+ * GET address search API:
+ *   address search by a string
+ */
+router.get('/address-search',
+  onemapController.getAddressSearch
+);
 
 module.exports = router;

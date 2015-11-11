@@ -1,0 +1,38 @@
+extends layout
+
+block title
+  title Search - Social Services SG
+
+append css
+  style(type='text/css').
+    .container {
+      margin-top: 2em;
+    }
+
+block body
+  .ui.text.container
+    h2.ui.blue.header
+      i.users.icon
+      .content Searching Social Services SG
+        .sub.header #{'Search for events around '+query.loc+'.'}
+    if events.length
+      .ui.horizontal.statistic
+        .value= events.length
+        if events.length == 1
+          .label event found
+        else
+          .label events found
+      for event in events
+        .ui.segment
+          h2.ui.blue.header
+            .content= event.title
+              .sub.header= 'Organized by - ' + event.organizer.name
+          p 
+            i.marker.icon
+            | #{event.address.name}
+          p 
+            a(href= '/#'+event._id) Click to see more.
+    else
+        .ui.info.message 
+          | #{'Sorry, there are no events around '+query.loc+'. '}
+          a(href='/') Click here to get back.
