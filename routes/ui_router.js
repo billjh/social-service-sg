@@ -1,34 +1,34 @@
 var router = require('express').Router();
-var webpageController = require('../controllers/webpage_controller');
+var UIController = require('../controllers/ui_controller');
 
 /* GET main page */
 router.get('/',
-  webpageController.getMainPage
+  UIController.getMainPage
 );
 
 /* GET login page */
 router.get('/login',
-  webpageController.getLoginPage
+  UIController.getLoginPage
 );
 
 /* GET signup page */
 router.get('/signup',
-  webpageController.getSignupPage
+  UIController.getSignupPage
 );
 
 /* GET account page */
 router.get('/account',
-  webpageController.getAccountPage
+  UIController.getAccountPage
 );
 
 /* GET events page */
 router.get('/events',
-  webpageController.getEventsPage
+  UIController.getEventsPage
 );
 
 /* GET search result page */
 router.get('/search',
-  webpageController.getSearchPage
+  UIController.getSearchPage
 );
 
 module.exports = router;
