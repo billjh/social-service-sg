@@ -1,5 +1,6 @@
-var Account = require('../models/account');
-var Participant = require('../models/participant');
+var Database = require('../models/database');
+var Account = Database.Account;
+var Participant = Database.Participant;
 
 /*
  * POST participant API endpoint:

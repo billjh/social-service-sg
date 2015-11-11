@@ -1,5 +1,6 @@
-var Account = require('../models/account');
-var Organizer = require('../models/organizer');
+var Database = require('../models/database');
+var Account = Database.Account;
+var Organizer = Database.Organizer;
 
 /*
  * POST organizer API endpoint:

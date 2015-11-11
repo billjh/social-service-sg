@@ -1,4 +1,4 @@
-var Account = require('../models/account');
+var Account = require('../models/database').Account;
 var passport = require('passport');
 var session = require('express-session');
 var LocalStrategy = require('passport-local').Strategy;

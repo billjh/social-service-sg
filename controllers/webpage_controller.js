@@ -1,7 +1,8 @@
 var router = require('express').Router();
-var Event = require('../models/event');
-var Participant = require('../models/participant');
-var Organizer = require('../models/organizer');
+var Database = require('../models/database');
+var Participant = Database.Participant;
+var Organizer = Database.Organizer;
+var Event = Database.Event;
 
 /*
  * GET main page render

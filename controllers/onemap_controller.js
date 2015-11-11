@@ -1,6 +1,6 @@
 var request = require('request');
 
-var accessKEY = 'b7H4xDXtBLEN+z+g46acCvQCqe1YWwe5TQVdhyxVIz6FZVL6M+eLvMDgg7M0i/yVELtDbMs97sM=|mv73ZvjFcSo=';
+var accessKEY = require('../config').onemap_key;
 var searchToken = '';
 
 /* Get a search token */

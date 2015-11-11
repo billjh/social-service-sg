@@ -3,13 +3,13 @@
 // > db.dropDatabase()
 
 var mongoose = require('mongoose');
-var db_url = 'mongodb://localhost/test';
-mongoose.connect(db_url);
+mongoose.connect(require('./config').db_url);
 
-var Account = require('./models/account');
-var Participant = require('./models/participant');
-var Organizer = require('./models/organizer');
-var Event = require('./models/event');
+var Database = require('../models/database');
+var Account = Database.Account;
+var Participant = Database.Participant;
+var Organizer = Database.Organizer;
+var Event = Database.Event;
 
 /* admin */
 var admin = new Account({

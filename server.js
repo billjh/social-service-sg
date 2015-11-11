@@ -8,8 +8,7 @@
   var cookieParser = require('cookie-parser');
 
   // connect to database
-  var db_url = 'mongodb://localhost/test'
-  mongoose.connect(db_url);
+  mongoose.connect(require('./config').db_url);
 
   // create an express application
   var app = express();
@@ -34,11 +33,12 @@
 /***********
  * Routes *
  ***********/
+  // webpages and statics files
   app.use('/', require('./routes/webpage_router'));
-
-  // API routes and static files
-  app.use('/api', require('./routes/api_router'));
   app.use(express.static('public'));
+
+  // API routes
+  app.use('/api', require('./routes/api_router'));
 
 
 /* Server listens on port */
