@@ -5,7 +5,7 @@
 var mongoose = require('mongoose');
 mongoose.connect(require('./config').db_url);
 
-var Database = require('../models/database');
+var Database = require('./models/database');
 var Account = Database.Account;
 var Participant = Database.Participant;
 var Organizer = Database.Organizer;

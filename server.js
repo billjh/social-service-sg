@@ -17,7 +17,7 @@
   app.use(logger('dev'));
 
   // use jade as view engine
-  app.set('views', './webpages');
+  app.set('views', './ui');
   app.set('view engine', 'jade');
 
   // middleware to parse cookie
@@ -34,7 +34,7 @@
  * Routes *
  ***********/
   // webpages and statics files
-  app.use('/', require('./routes/webpage_router'));
+  app.use('/', require('./routes/ui_router'));
   app.use(express.static('public'));
 
   // API routes
